@@ -2,6 +2,10 @@
 
 A public study project focused on **front-end performance** and **user experience**: a premium hero section with a **deferred Canvas “Matrix” background**, **CLS-safe** image handling, and accessibility-first UI.
 
+This study was extracted and adapted from real-world performance experiments developed by the team at  
+[Wys Agency – Digital Marketing Agency in Miami](https://wysagency.com/marketing-agency-in-miami/),  
+where high-impact visuals must coexist with strict performance and SEO requirements.
+
 ✅ Designed to be **Lighthouse-friendly** by:
 - Deferring the Canvas animation until interaction or timeout
 - Respecting `prefers-reduced-motion`
