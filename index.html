@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Study project: High-performance hero with deferred Canvas Matrix background, CLS-safe layout and accessibility-first UI." />
+  <title>Performance Canvas Background Study</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <!-- Icons (async) -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+        media="print"
+        onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  </noscript>
+
+  <style>
+    /* CRITICAL CSS */
+    #wys-hero-premium {
+      --primary-cyan: #00d2d3;
+      --cyan-glow: rgba(0, 210, 211, 0.6);
+      --bg-dark: #020202;
+      --glass-border: rgba(0, 210, 211, 0.3);
+      --text-white: #ffffff;
+
+      font-family: 'Montserrat', sans-serif, Arial;
+      background-color: var(--bg-dark);
+      color: #fff;
+      width: 100%;
+      position: relative;
+      min-height: 85vh;
+      padding-bottom: 40px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      content-visibility: auto;
+    }
+
+    /* Canvas Background */
+    #wys-hero-premium #matrixCanvas {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 0; opacity: 0.35; pointer-events: none;
+      will-change: transform;
+    }
+
+    #wys-hero-premium .hero-overlay {
+      position: absolute; inset: 0; z-index: 1;
+      background: radial-gradient(circle at center, transparent 20%, var(--bg-dark) 100%);
+      pointer-events: none;
+    }
+
+    #wys-hero-premium .hero-section {
+      position: relative; width: 100%; z-index: 10;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 0 20px; text-align: center;
+    }
+
+    /* Social Bar */
+    #wys-hero-premium .top-bar {
+      width: 100%; max-width: 1200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 30px 0;
+      margin-bottom: 20px;
+    }
+
+    #wys-hero-premium .top-social {
+      display: flex;
+      flex-direction: row;
+      gap: 25px;
+      flex-wrap: wrap;
+      justify-content: center;
+      list-style: none;
+      padding: 0; margin: 0;
+    }
+
+    #wys-hero-premium .top-social a {
+      color: var(--text-white) !important;
+      font-size: 1.2rem;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: 0.3s;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    #wys-hero-premium .top-social a:hover {
+      color: var(--primary-cyan) !important;
+      background: rgba(0, 210, 211, 0.15);
+      transform: translateY(-3px);
+    }
+
+    /* Hero Content */
+    #wys-hero-premium .hero-content {
+      display: flex; flex-direction: column; align-items: center;
+      width: 100%; max-width: 900px;
+      flex-grow: 1;
+      justify-content: center;
+    }
+
+    /* CLS-safe logo */
+    #wys-hero-premium .hero-logo-img {
+      width: 100%;
+      max-width: 150px;
+      height: auto;
+      margin-bottom: 30px;
+      filter: drop-shadow(0 0 15px var(--cyan-glow));
+      flex-shrink: 0;
+      aspect-ratio: 150/65;
+      object-fit: contain;
+    }
+
+    #wys-hero-premium .hero-title {
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      font-weight: 900; line-height: 1.1;
+      margin-bottom: 20px; letter-spacing: -1.5px;
+    }
+
+    #wys-hero-premium .highlight {
+      color: var(--primary-cyan);
+      text-shadow: 0 0 35px rgba(0, 210, 211, 0.5);
+    }
+
+    #wys-hero-premium .hero-desc {
+      font-size: 1.15rem; line-height: 1.6;
+      color: #f0f0f0; max-width: 650px; margin: 0 auto;
+    }
+
+    #wys-hero-premium .glass-card {
+      background: rgba(15, 15, 15, 0.85);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 40px; padding: 40px;
+      margin-top: 50px; width: 100%; max-width: 380px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+    }
+
+    #wys-hero-premium .avatar-container {
+      width: 130px; height: 130px; margin: 0 auto 25px;
+      border-radius: 50%; border: 3px solid var(--primary-cyan);
+      box-shadow: 0 0 30px var(--cyan-glow); overflow: hidden;
+      background: #000;
+    }
+    #wys-hero-premium .card-avatar {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+
+    #wys-hero-premium .cta-button {
+      display: inline-block; padding: 16px 40px;
+      background: linear-gradient(90deg, var(--primary-cyan), #009ea0);
+      color: #000 !important; font-weight: 800; text-decoration: none;
+      border-radius: 50px; text-transform: uppercase;
+      letter-spacing: 1px; transition: 0.4s;
+    }
+    #wys-hero-premium .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px var(--cyan-glow);
+    }
+
+    @media (max-width: 768px) {
+      #wys-hero-premium .hero-title { font-size: 2.6rem; }
+      #wys-hero-premium .glass-card { padding: 30px 20px; }
+      #wys-hero-premium .top-social { flex-direction: row; }
+    }
+  </style>
+
+  <!-- Structured data (optional for study; kept as-is) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "AdvertisingAgency",
+    "name": "Wys Agency",
+    "alternateName": "Wys Marketing Miami",
+    "url": "https://wysagency.com/marketing-agency-in-miami/",
+    "logo": "https://i0.wp.com/agenciawys.com.br/wp-content/uploads/2025/12/logowys.webp",
+    "description": "Premium Digital Marketing Agency in Miami specializing in performance, creative innovation, and SEO.",
+    "sameAs": [
+      "https://www.facebook.com/agenciawys",
+      "https://www.instagram.com/agenciawys",
+      "https://www.linkedin.com/company/agenciawys",
+      "https://twitter.com/agenciawys"
+    ],
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Miami",
+      "addressRegion": "FL",
+      "addressCountry": "US"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "25.7617",
+      "longitude": "-80.1918"
+    },
+    "priceRange": "$$$"
+  }
+  </script>
+</head>
+
+<body style="margin:0">
+  <div id="wys-hero-premium" role="banner">
+    <canvas id="matrixCanvas" aria-hidden="true"></canvas>
+    <div class="hero-overlay"></div>
+
+    <section class="hero-section">
+      <header class="top-bar">
+        <nav class="top-social" aria-label="Social Profiles">
+          <a href="https://www.facebook.com/agenciawys" target="_blank" rel="me noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/agenciawys" target="_blank" rel="me noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="https://www.linkedin.com/company/agenciawys" target="_blank" rel="me noopener" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://twitter.com/agenciawys" target="_blank" rel="me noopener" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+        </nav>
+      </header>
+
+      <div class="hero-content">
+        <div class="hero-text-col">
+          <img src="https://i0.wp.com/agenciawys.com.br/wp-content/uploads/2025/12/logowys.webp"
+               alt="Wys Agency - Top Rated Marketing Agency in Miami"
+               class="hero-logo-img"
+               width="150" height="65"
+               fetchpriority="high">
+
+          <h1 class="hero-title">
+            Digital <span class="highlight">Marketing Agency</span><br>in Miami
+          </h1>
+
+          <p class="hero-desc">
+            Empowering <strong>Miami & South Florida businesses</strong> with creative innovation, intelligent SEO, and elite digital solutions.
+          </p>
+        </div>
+
+        <div class="hero-card-col">
+          <div class="glass-card">
+            <div class="avatar-container">
+              <img src="https://i0.wp.com/agenciawys.com.br/wp-content/uploads/2025/11/imagens-da-Wys_02.webp"
+                   alt="Paul Gomes - Digital Marketing Strategist Miami"
+                   class="card-avatar"
+                   loading="eager"
+                   width="130" height="130">
+            </div>
+
+            <p style="color:#fff; font-weight:700; font-size:1.2rem; margin: 0 0 15px 0;">
+              Scale your Miami business!
+            </p>
+
+            <a href="https://wa.me/551131989073" target="_blank" class="cta-button">Talk to an expert</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    /**
+     * Performance strategy:
+     * - Defer Canvas animation until interaction OR 4s timeout
+     * - Respect prefers-reduced-motion
+     * - Pause animation offscreen (IntersectionObserver)
+     * - Throttle frames (reduce CPU)
+     */
+
+    function initMatrixEffect() {
+      if (window.matrixInitialized) return;
+      window.matrixInitialized = true;
+
+      const canvas = document.getElementById('matrixCanvas');
+      const container = document.getElementById('wys-hero-premium');
+
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!canvas || !container || prefersReducedMotion) return;
+
+      const ctx = canvas.getContext('2d', { alpha: false });
+      const fontSize = 16;
+      let drops = [];
+      let animationFrameId;
+
+      function resize() {
+        canvas.width = container.offsetWidth;
+        canvas.height = container.offsetHeight;
+        drops = Array(Math.floor(canvas.width / fontSize)).fill(1);
+      }
+
+      function draw() {
+        ctx.fillStyle = 'rgba(2, 2, 2, 0.15)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#00d2d3';
+        ctx.font = fontSize + 'px monospace';
+
+        for (let i = 0; i < drops.length; i++) {
+          const text = "WYSMARKETING"[Math.floor(Math.random() * 12)];
+          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.985) drops[i] = 0;
+          drops[i]++;
+        }
+      }
+
+      let lastTime = 0;
+      function animate(time) {
+        if (!time) time = performance.now();
+        if (time - lastTime > 50) { // ~20fps
+          draw();
+          lastTime = time;
+        }
+        animationFrameId = requestAnimationFrame(animate);
+      }
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) {
+            cancelAnimationFrame(animationFrameId);
+          } else {
+            animate();
+          }
+        });
+      });
+      observer.observe(container);
+
+      window.addEventListener('resize', resize, { passive: true });
+      resize();
+    }
+
+    const interactions = ['mousedown', 'mousemove', 'touchstart', 'scroll', 'keydown'];
+    interactions.forEach(event =>
+      document.addEventListener(event, initMatrixEffect, { once: true, passive: true })
+    );
+
+    setTimeout(initMatrixEffect, 4000);
+  </script>
+</body>
+</html>
